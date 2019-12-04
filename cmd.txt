@@ -1,0 +1,39 @@
+CMDS
+
+
+# Get shell in OpenVPN container
+kubectl exec -it flippant-newt-openvpn-6f89dc6c5c-wh897 -c openvpn -- /bin/bash
+
+
+OpenVPN CLIENT LIST
+Updated,Mon Dec  2 09:36:48 2019
+Common Name,Real Address,Bytes Received,Bytes Sent,Connected Since
+CC1,10.244.0.0:25883,27718,3977,Mon Dec  2 09:36:22 2019
+ROUTING TABLE
+Virtual Address,Common Name,Real Address,Last Ref
+10.240.0.6,CC1,10.244.0.0:25883,Mon Dec  2 09:36:47 2019
+GLOBAL STATS
+Max bcast/mcast queue length,0
+
+
+# Get metrics from POD in cluster
+curl 10.244.3.121:9176/metrics
+
+# Spawn test pod
+kubectl run --image=ubuntu test --rm -ti -- /bin/bash
+
+
+
+## Create client
+
+POD_NAME=$(kubectl get pods --namespace "dpallotta-ns1" -l "app=openvpn,release=erstwhile-panda" -o jsonpath='{ .items[0].metadata.name }')
+SERVICE_NAME=$(kubectl get svc --namespace "dpallotta-ns1" -l "app=openvpn,release=erstwhile-panda" -o jsonpath='{ .items[0].metadata.name }')
+SERVICE_IP=$(kubectl get svc --namespace "dpallotta-ns1" "$SERVICE_NAME" -o go-template='{{ range $k, $v := (index .status.loadBalancer.ingress 0)}}{{ $v }}{{end}}')
+KEY_NAME=CC2
+kubectl --namespace "dpallotta-ns1" exec -it "$POD_NAME" -c openvpn /etc/openvpn/setup/newClientCert.sh "$KEY_NAME" "$SERVICE_IP"
+kubectl --namespace "dpallotta-ns1" exec -it "$POD_NAME" -c openvpn cat "/etc/openvpn/certs/pki/$KEY_NAME.ovpn" > "$KEY_NAME.ovpn"
+
+
+## PORT FORWARDING
+
+kubectl port-forward erstwhile-panda-openvpn-59ddd4b9d-6j8sx9176:9176
