@@ -61,3 +61,6 @@ openvpn_server_client_received_bytes_total{common_name="CC2",connection_time="15
 # HELP openvpn_server_client_sent_bytes_total Amount of data sent over a connection on the VPN server, in bytes.
 # TYPE openvpn_server_client_sent_bytes_total counter
 openvpn_server_client_sent_bytes_total{common_name="CC2",connection_time="1576248156",real_address="10.244.0.0:25878",status_path="/etc/openvpn-exporter/openvpn/openvpn-status.log",username="UNDEF",virtual_address="10.240.0.6"} 19047
+```
+
+We also need to expose the exporter (no pun intended) through a service, so that the Prometheus operator can access it, by running `kubectl apply -f exporter_service.yaml`.
