@@ -66,3 +66,33 @@ openvpn_server_client_sent_bytes_total{common_name="CC2",connection_time="157624
 We also need to expose the exporter (no pun intended) through a service, so that the Prometheus operator can access it, by running `kubectl apply -f exporter_service.yaml`.
 
 `kubectl apply -f servicemonitor.yaml` will now deploy the service monitor that is used by the Prometheus operator to harvest our metrics.
+
+Once everything is up and running, we are now ready to autoscale against our custom metrics! 
+The following shows an HPA that scales against the number of users currently connected to the VPN:
+
+```
+  
+kind: HorizontalPodAutoscaler
+apiVersion: autoscaling/v2beta1
+metadata:
+  name: openvpn
+spec:
+  scaleTargetRef:
+    # point the HPA at the sample application
+    # you created above
+    apiVersion: apps/v1
+    kind: Deployment
+    name: erstwhile-panda-openvpn
+  # autoscale between 1 and 10 replicas
+  minReplicas: 1
+  maxReplicas: 10
+  metrics:
+  # use a "Pods" metric, which takes the average of the
+  # given metric across all pods controlled by the autoscaling target
+  - type: Pods
+    pods:
+      metricName: openvpn_openvpn_server_connected_clients
+      # target 500 milli-requests per second,
+      # which is 1 request every two seconds
+      targetAverageValue: 3
+```
