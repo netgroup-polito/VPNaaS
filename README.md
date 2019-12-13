@@ -20,7 +20,7 @@ containers:
     - name: openvpn-status
       mountPath: /etc/openvpn-exporter/openvpn
       
-  ...
+...
 ```        
 
 Docs for the exporter are available [here](https://github.com/kumina/openvpn_exporter).
