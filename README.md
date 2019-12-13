@@ -70,8 +70,7 @@ We also need to expose the exporter (no pun intended) through a service, so that
 Once everything is up and running, we are now ready to autoscale against our custom metrics! 
 The following shows an HPA that scales against the number of users currently connected to the VPN:
 
-```
-  
+```YAML
 kind: HorizontalPodAutoscaler
 apiVersion: autoscaling/v2beta1
 metadata:
