@@ -49,7 +49,7 @@ To take a look at the metrics, you can use port-forwarding.
 
 Run `kubectl port-forward <pod_name> 9176:9176` and then connect to [http://localhost:9176/metrics](http://localhost:9176/metrics).
 
-You should now be able to see some OpenVPN metrics:
+You should now be able to see some Prometheus metrics of your OpenVPN instance:
 
 ```
 # HELP openvpn_openvpn_server_connected_clients Number Of Connected Clients
