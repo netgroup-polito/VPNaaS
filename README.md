@@ -70,7 +70,7 @@ We also need to expose the exporter (no pun intended) through a service, so that
 `kubectl apply -f servicemonitor.yaml` will now deploy the service monitor that is used by the Prometheus operator to harvest our metrics.
 
 Once everything is up and running, we are now ready to autoscale against our custom metrics! 
-The following shows an HPA that scales against the number of users currently connected to the VPN:
+The following shows a HPA that scales against the number of users currently connected to the VPN:
 
 ```YAML
 kind: HorizontalPodAutoscaler
