@@ -8,7 +8,7 @@ The chart is forked from this [official OpenVPN chart](https://github.com/helm/c
 
 I have added an OpenVPN exporter as a sidecar container in the deployment, which harvests OpenVPN metrics and exposes as Prometheus metrics on port 9176.
 
-```
+```YAML
 containers:
   - name: exporter
     image: kumina/openvpn-exporter
@@ -28,7 +28,7 @@ My chart also contains some minor tweaks that are used to make it compatible wit
 
 After the chart is deployed and the pod is ready, an OpenVPN certificate can be generated using the following commands:
 
-```
+```bash
 POD_NAME=$(kubectl get pods --namespace <namespace> -l "app=openvpn,release=<your_release>" -o jsonpath='{ .items[0].metadata.name }')
 SERVICE_NAME=$(kubectl get svc --namespace <namespace>  -l "app=openvpn,release=<your_release>" -o jsonpath='{ .items[0].metadata.name }')
 SERVICE_IP=$(kubectl get svc --namespace <namespace>  "$SERVICE_NAME" -o go-template='{{ range $k, $v := (index .status.loadBalancer.ingress 0)}}{{ $v }}{{end}}')
@@ -39,7 +39,7 @@ kubectl --namespace <namespace>  exec -it "$POD_NAME" -c openvpn cat "/etc/openv
 
 Clients certificates can be revoked in this manner:
 
-```
+```bash
 KEY_NAME=<key_name>
 POD_NAME=$(kubectl get pods -n <namespace> -l "app=openvpn,release=<your_release>" -o jsonpath='{.items[0].metadata.name}')
 kubectl -n <namespace> exec -it "$POD_NAME" /etc/openvpn/setup/revokeClientCert.sh $KEY_NAME
