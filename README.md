@@ -6,7 +6,7 @@ Provision an OpenVPN installation on k8s that can autoscale against custom metri
 
 The chart is forked from this [official openvpn chart](https://github.com/helm/charts/tree/master/stable/openvpn).
 
-I have added a sidecar container in the deployment. The container is an openvpn exporter, which harvests openvpn metrics and exposes them on port 9176.
+I have added a sidecar container to the deployment. The container is an openvpn exporter, which harvests openvpn metrics and exposes them on port 9176.
 
 ```
 containers:
