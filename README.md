@@ -24,7 +24,7 @@ containers:
 Docs for the exporter are available [here](https://github.com/kumina/openvpn_exporter).
 
 
-After the chart is deployed and the pod is read, an openvpn certificate can be generate using the following commands:
+After the chart is deployed and the pod is ready, an openvpn certificate can be generate using the following commands:
 
 ```
 POD_NAME=$(kubectl get pods --namespace <namespace> -l "app=openvpn,release=<your_release>" -o jsonpath='{ .items[0].metadata.name }')
@@ -42,3 +42,7 @@ KEY_NAME=<key_name>
 POD_NAME=$(kubectl get pods -n <namespace> -l "app=openvpn,release=<your_release>" -o jsonpath='{.items[0].metadata.name}')
 kubectl -n <namespace> exec -it "$POD_NAME" /etc/openvpn/setup/revokeClientCert.sh $KEY_NAME
 ```
+
+To take a look at the metrics, you can use port-forwarding.
+
+Run `kubectl port-forward <pod_name> 9176:9176` and then connect to [http://localhost:9176/metrics](http://localhost:9176/metrics).
