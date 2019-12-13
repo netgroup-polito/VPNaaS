@@ -92,7 +92,5 @@ spec:
   - type: Pods
     pods:
       metricName: openvpn_openvpn_server_connected_clients
-      # target 500 milli-requests per second,
-      # which is 1 request every two seconds
       targetAverageValue: 3
 ```
