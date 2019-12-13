@@ -46,3 +46,16 @@ kubectl -n <namespace> exec -it "$POD_NAME" /etc/openvpn/setup/revokeClientCert.
 To take a look at the metrics, you can use port-forwarding.
 
 Run `kubectl port-forward <pod_name> 9176:9176` and then connect to [http://localhost:9176/metrics](http://localhost:9176/metrics).
+
+You should now be able to see some OpenVPN metrics:
+
+```
+# HELP openvpn_openvpn_server_connected_clients Number Of Connected Clients
+# TYPE openvpn_openvpn_server_connected_clients gauge
+openvpn_openvpn_server_connected_clients{status_path="/etc/openvpn-exporter/openvpn/openvpn-status.log"} 1
+# HELP openvpn_server_client_received_bytes_total Amount of data received over a connection on the VPN server, in bytes.
+# TYPE openvpn_server_client_received_bytes_total counter
+openvpn_server_client_received_bytes_total{common_name="CC2",connection_time="1576248156",real_address="10.244.0.0:25878",status_path="/etc/openvpn-exporter/openvpn/openvpn-status.log",username="UNDEF",virtual_address="10.240.0.6"} 17762
+# HELP openvpn_server_client_sent_bytes_total Amount of data sent over a connection on the VPN server, in bytes.
+# TYPE openvpn_server_client_sent_bytes_total counter
+openvpn_server_client_sent_bytes_total{common_name="CC2",connection_time="1576248156",real_address="10.244.0.0:25878",status_path="/etc/openvpn-exporter/openvpn/openvpn-status.log",username="UNDEF",virtual_address="10.240.0.6"} 19047
