@@ -20,3 +20,5 @@ containers:
       
   ...
 ```        
+
+Docs for the exporter are available [here](https://github.com/kumina/openvpn_exporter).
