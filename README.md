@@ -26,7 +26,7 @@ Docs for the exporter are available [here](https://github.com/kumina/openvpn_exp
 My chart also contains some minor tweaks that are used to make it compatible with the exporter, such as adding the `status-version 2` option in the OpenVPN configuration file.
 
 
-After the chart is deployed and the pod is ready, an openvpn certificate can be generate using the following commands:
+After the chart is deployed and the pod is ready, an OpenVPN certificate can be generated using the following commands:
 
 ```
 POD_NAME=$(kubectl get pods --namespace <namespace> -l "app=openvpn,release=<your_release>" -o jsonpath='{ .items[0].metadata.name }')
