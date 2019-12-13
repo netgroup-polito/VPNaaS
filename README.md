@@ -6,9 +6,14 @@ Provision an OpenVPN installation on k8s that can autoscale against custom metri
 
 The chart is forked from this [official OpenVPN chart](https://github.com/helm/charts/tree/master/stable/openvpn).
 
+To install from the chart directory, run 
+```helm install --name <release_name> --tiller-namespace <tiller_namespace> .```
+
 I have added an OpenVPN exporter as a sidecar container in the deployment, which harvests OpenVPN metrics and exposes as Prometheus metrics on port 9176.
 
-```
+```YAML
+...
+
 containers:
   - name: exporter
     image: kumina/openvpn-exporter
@@ -18,7 +23,7 @@ containers:
     - name: openvpn-status
       mountPath: /etc/openvpn-exporter/openvpn
       
-  ...
+...
 ```        
 
 Docs for the exporter are available [here](https://github.com/kumina/openvpn_exporter).
@@ -28,7 +33,7 @@ My chart also contains some minor tweaks that are used to make it compatible wit
 
 After the chart is deployed and the pod is ready, an OpenVPN certificate can be generated using the following commands:
 
-```
+```bash
 POD_NAME=$(kubectl get pods --namespace <namespace> -l "app=openvpn,release=<your_release>" -o jsonpath='{ .items[0].metadata.name }')
 SERVICE_NAME=$(kubectl get svc --namespace <namespace>  -l "app=openvpn,release=<your_release>" -o jsonpath='{ .items[0].metadata.name }')
 SERVICE_IP=$(kubectl get svc --namespace <namespace>  "$SERVICE_NAME" -o go-template='{{ range $k, $v := (index .status.loadBalancer.ingress 0)}}{{ $v }}{{end}}')
@@ -39,7 +44,7 @@ kubectl --namespace <namespace>  exec -it "$POD_NAME" -c openvpn cat "/etc/openv
 
 Clients certificates can be revoked in this manner:
 
-```
+```bash
 KEY_NAME=<key_name>
 POD_NAME=$(kubectl get pods -n <namespace> -l "app=openvpn,release=<your_release>" -o jsonpath='{.items[0].metadata.name}')
 kubectl -n <namespace> exec -it "$POD_NAME" /etc/openvpn/setup/revokeClientCert.sh $KEY_NAME
@@ -65,13 +70,13 @@ openvpn_server_client_sent_bytes_total{common_name="CC2",connection_time="157624
 
 We also need to expose the exporter (no pun intended) through a service, so that the Prometheus operator can access it, by running `kubectl apply -f exporter_service.yaml`.
 
-`kubectl apply -f servicemonitor.yaml` will now deploy the service monitor that is used by the Prometheus operator to harvest our metrics.
+`kubectl apply -f servicemonitor.yaml` will now deploy the service monitor that is used by Prometheus to harvest our metrics.
+What the service monitor does is declaratively specify how groups of services should be monitored.
 
 Once everything is up and running, we are now ready to autoscale against our custom metrics! 
-The following shows an HPA that scales against the number of users currently connected to the VPN:
+The following shows a HPA that scales against the number of users currently connected to the VPN:
 
-```
-  
+```YAML
 kind: HorizontalPodAutoscaler
 apiVersion: autoscaling/v2beta1
 metadata:
@@ -82,7 +87,7 @@ spec:
     # you created above
     apiVersion: apps/v1
     kind: Deployment
-    name: erstwhile-panda-openvpn
+    name: <your_openvpn_deployment>
   # autoscale between 1 and 10 replicas
   minReplicas: 1
   maxReplicas: 10
@@ -94,3 +99,14 @@ spec:
       metricName: openvpn_openvpn_server_connected_clients
       targetAverageValue: 3
 ```
+
+## Troubleshooting
+
+### Load Balancer issues
+
+If the client is not able to connect through the Load Balancer service, it is possible to switch to using the NodePort, by changing the IP and port on the client certificate.
+
+### Internet traffic through VPN
+
+IP forwarding needs to be set on the server machines for internet connectivity to work through the VPN gateway.
+
