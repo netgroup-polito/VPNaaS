@@ -64,3 +64,5 @@ openvpn_server_client_sent_bytes_total{common_name="CC2",connection_time="157624
 ```
 
 We also need to expose the exporter (no pun intended) through a service, so that the Prometheus operator can access it, by running `kubectl apply -f exporter_service.yaml`.
+
+`kubectl apply -f servicemonitor.yaml` will now deploy the service monitor that is used by the Prometheus operator to harvest our metrics.
