@@ -9,6 +9,8 @@ The chart is forked from this [official OpenVPN chart](https://github.com/helm/c
 I have added an OpenVPN exporter as a sidecar container in the deployment, which harvests OpenVPN metrics and exposes as Prometheus metrics on port 9176.
 
 ```YAML
+...
+
 containers:
   - name: exporter
     image: kumina/openvpn-exporter
