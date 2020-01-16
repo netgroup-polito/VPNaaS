@@ -12,12 +12,13 @@ Everything was tested with:
 
 ## Installation
 
-The chart is forked from this [official OpenVPN chart](https://github.com/helm/charts/tree/master/stable/openvpn).
+The Helm OpenVPN chart is derived from the [official one](https://github.com/helm/charts/tree/master/stable/openvpn).
 
 To install from the chart directory, run 
 ```helm install --name <release_name> --tiller-namespace <tiller_namespace> .```
 
-I have added an OpenVPN exporter as a sidecar container in the deployment, which harvests OpenVPN metrics and exposes as Prometheus metrics on port 9176.
+I have added an OpenVPN exporter that harvests OpenVPN metrics and exposes as Prometheus metrics on port 9176.
+This has been implemented as a sidecar container in the deployment. 
 
 ```YAML
 ...
@@ -119,3 +120,6 @@ If the client is not able to connect through the Load Balancer service, it is po
 IP forwarding needs to be set on the server machines for internet connectivity to work through the VPN gateway.
 You can avoid routing Internet traffic through the VPN by setting `redirectGateway: false` or adding the line `pull-filter ignore "dhcp-option DNS"` to the client certificate.
 
+## TODO
+
+* Manage certificate persistence across replicas.
