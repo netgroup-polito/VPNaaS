@@ -2,6 +2,14 @@
 
 Provision an OpenVPN installation on k8s that can autoscale against custom metrics.
 
+## Prerequisites
+
+Everything was tested with:
+
+* [kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl/) version v1.12.0+.
+* Kubernetes v1.6+ cluster.
+* [helm](https://helm.sh/docs/intro/install/) v2.16+
+
 ## Installation
 
 The chart is forked from this [official OpenVPN chart](https://github.com/helm/charts/tree/master/stable/openvpn).
@@ -104,9 +112,10 @@ spec:
 
 ### Load Balancer issues
 
-If the client is not able to connect through the Load Balancer service, it is possible to switch to using the NodePort, by changing the IP and port on the client certificate.
+If the client is not able to connect through the Load Balancer service, it is possible to switch to using the NodePort, by changing the IP and port on the client certificate (this can be done on certificate creation or by manually modifying the certificate).
 
 ### Internet traffic through VPN
 
 IP forwarding needs to be set on the server machines for internet connectivity to work through the VPN gateway.
+You can avoid routing Internet traffic through the VPN by setting `redirectGateway: false` or adding the line `pull-filter ignore "dhcp-option DNS"` to the client certificate.
 
