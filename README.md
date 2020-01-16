@@ -70,7 +70,8 @@ openvpn_server_client_sent_bytes_total{common_name="CC2",connection_time="157624
 
 We also need to expose the exporter (no pun intended) through a service, so that the Prometheus operator can access it, by running `kubectl apply -f exporter_service.yaml`.
 
-`kubectl apply -f servicemonitor.yaml` will now deploy the service monitor that is used by the Prometheus operator to harvest our metrics.
+`kubectl apply -f servicemonitor.yaml` will now deploy the service monitor that is used by Prometheus to harvest our metrics.
+What the service monitor does is declaratively specify how groups of services should be monitored.
 
 Once everything is up and running, we are now ready to autoscale against our custom metrics! 
 The following shows a HPA that scales against the number of users currently connected to the VPN:
@@ -105,7 +106,7 @@ spec:
 
 If the client is not able to connect through the Load Balancer service, it is possible to switch to using the NodePort, by changing the IP and port on the client certificate.
 
-### Internet connection
+### Internet traffic through VPN
 
-IP forwarding needs to be set on the server machines for internet connectivity to work.
+IP forwarding needs to be set on the server machines for internet connectivity to work through the VPN gateway.
 
