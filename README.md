@@ -2,6 +2,14 @@
 
 Provision an OpenVPN installation on k8s that can autoscale against custom metrics.
 
+## Prerequisites
+
+Everything was tested with:
+
+* [kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl/) version v1.12.0+.
+* Kubernetes v1.6+ cluster.
+* [helm](https://helm.sh/docs/intro/install/) v2.16+
+
 ## Installation
 
 The chart is forked from this [official OpenVPN chart](https://github.com/helm/charts/tree/master/stable/openvpn).
