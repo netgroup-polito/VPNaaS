@@ -95,3 +95,14 @@ spec:
       metricName: openvpn_openvpn_server_connected_clients
       targetAverageValue: 3
 ```
+
+## Troubleshooting
+
+### Load Balancer issues
+
+If the client is not able to connect through a LoadBalancer, is it possible to switch to using the NodePort, by changing the IP and port on the client certificate.
+
+### Internet connection
+
+IP forwarding needs to be set on the server machines for internet connectivity to work.
+
