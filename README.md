@@ -83,7 +83,7 @@ spec:
     # you created above
     apiVersion: apps/v1
     kind: Deployment
-    name: erstwhile-panda-openvpn
+    name: <your_openvpn_deployment>
   # autoscale between 1 and 10 replicas
   minReplicas: 1
   maxReplicas: 10
