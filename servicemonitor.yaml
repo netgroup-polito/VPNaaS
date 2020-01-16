@@ -2,7 +2,7 @@ apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
   name: openvpn
-  namespace: dpallotta-ns1
+  namespace: default
 spec:
   endpoints:
   - interval: 15s
