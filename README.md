@@ -112,7 +112,7 @@ spec:
 
 ### Load Balancer issues
 
-If the client is not able to connect through the Load Balancer service, it is possible to switch to using the NodePort, by changing the IP and port on the client certificate.
+If the client is not able to connect through the Load Balancer service, it is possible to switch to using the NodePort, by changing the IP and port on the client certificate (this can be done on certificate creation or by manually modifying the certificate).
 
 ### Internet traffic through VPN
 
