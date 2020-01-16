@@ -109,5 +109,5 @@ If the client is not able to connect through the Load Balancer service, it is po
 ### Internet traffic through VPN
 
 IP forwarding needs to be set on the server machines for internet connectivity to work through the VPN gateway.
-You can avoid routing Internet traffic through the VPN by setting `redirectGateway: false`.
+You can avoid routing Internet traffic through the VPN by setting `redirectGateway: false` or adding the line `pull-filter ignore "dhcp-option DNS"` to the client certificate.
 
