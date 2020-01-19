@@ -2,14 +2,23 @@
 
 Provision an OpenVPN installation on k8s that can autoscale against custom metrics.
 
+## Prerequisites
+
+Everything was tested with:
+
+* [kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl/) version v1.12.0+.
+* Kubernetes v1.6+ cluster.
+* [helm](https://helm.sh/docs/intro/install/) v2.16+
+
 ## Installation
 
-The chart is forked from this [official OpenVPN chart](https://github.com/helm/charts/tree/master/stable/openvpn).
+The Helm OpenVPN chart is derived from the [official one](https://github.com/helm/charts/tree/master/stable/openvpn).
 
 To install from the chart directory, run 
 ```helm install --name <release_name> --tiller-namespace <tiller_namespace> .```
 
-I have added an OpenVPN exporter as a sidecar container in the deployment, which harvests OpenVPN metrics and exposes as Prometheus metrics on port 9176.
+I have added an OpenVPN exporter that harvests OpenVPN metrics and exposes as Prometheus metrics on port 9176.
+This has been implemented as a sidecar container in the deployment. 
 
 ```YAML
 ...
@@ -70,7 +79,8 @@ openvpn_server_client_sent_bytes_total{common_name="CC2",connection_time="157624
 
 We also need to expose the exporter (no pun intended) through a service, so that the Prometheus operator can access it, by running `kubectl apply -f exporter_service.yaml`.
 
-`kubectl apply -f servicemonitor.yaml` will now deploy the service monitor that is used by the Prometheus operator to harvest our metrics.
+`kubectl apply -f servicemonitor.yaml` will now deploy the service monitor that is used by Prometheus to harvest our metrics.
+What the service monitor does is declaratively specify how groups of services should be monitored.
 
 Once everything is up and running, we are now ready to autoscale against our custom metrics! 
 The following shows a HPA that scales against the number of users currently connected to the VPN:
@@ -103,9 +113,13 @@ spec:
 
 ### Load Balancer issues
 
-If the client is not able to connect through the Load Balancer service, it is possible to switch to using the NodePort, by changing the IP and port on the client certificate.
+If the client is not able to connect through the Load Balancer service, it is possible to switch to using the NodePort, by changing the IP and port on the client certificate (this can be done on certificate creation or by manually modifying the certificate).
 
-### Internet connection
+### Internet traffic through VPN
 
-IP forwarding needs to be set on the server machines for internet connectivity to work.
+IP forwarding needs to be set on the server machines for internet connectivity to work through the VPN gateway.
+You can avoid routing Internet traffic through the VPN by setting `redirectGateway: false` or adding the line `pull-filter ignore "dhcp-option DNS"` to the client certificate.
 
+## TODO
+
+* Manage certificate persistence across replicas.
