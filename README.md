@@ -17,7 +17,8 @@ The Helm OpenVPN chart is derived from the [official one](https://github.com/hel
 To install from the chart directory, run 
 ```helm install --name <release_name> --tiller-namespace <tiller_namespace> .```
 
-I have added an OpenVPN exporter as a sidecar container in the deployment, which harvests OpenVPN metrics and exposes as Prometheus metrics on port 9176.
+I have added an OpenVPN exporter that harvests OpenVPN metrics and exposes as Prometheus metrics on port 9176.
+This has been implemented as a sidecar container in the deployment. 
 
 ```YAML
 ...
