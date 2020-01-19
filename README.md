@@ -12,7 +12,7 @@ Everything was tested with:
 
 ## Installation
 
-The chart is forked from this [official OpenVPN chart](https://github.com/helm/charts/tree/master/stable/openvpn).
+The OpenVPN chart is forked from the  [official one](https://github.com/helm/charts/tree/master/stable/openvpn).
 
 To install from the chart directory, run 
 ```helm install --name <release_name> --tiller-namespace <tiller_namespace> .```
