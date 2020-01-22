@@ -12,13 +12,16 @@ Everything was tested with:
 
 ## Installation
 
-The Helm OpenVPN chart is derived from the [official one](https://github.com/helm/charts/tree/master/stable/openvpn).
+The Helm OpenVPN chart is derived from the [official one](https://github.com/helm/charts/tree/master/stable/openvpn). This fork includes new shared volumes that are used to share OpenVPN metrics, and a sidecar container that exportes this metrics for Prometheus.
 
 To install from the chart directory, run 
 ```helm install --name <release_name> --tiller-namespace <tiller_namespace> .```
 
-I have added an OpenVPN exporter that harvests OpenVPN metrics and exposes as Prometheus metrics on port 9176.
-This has been implemented as a sidecar container in the deployment. 
+As an example, to install the chart in the `johndoe` namespace, you might do
+```helm install --name openvpn_v01 --tiller-namespace johndoe .```
+
+
+The metrics exporter is deployed as a sidecar container in the OpenVPN pod, and it exposes metrics on port 9176. This is shown in the following snippet, where the exporter image is used, and the commands for exporting the metrics are run.
 
 ```YAML
 ...
@@ -37,10 +40,10 @@ containers:
 
 Docs for the exporter are available [here](https://github.com/kumina/openvpn_exporter).
 
-My chart also contains some minor tweaks that are used to make it compatible with the exporter, such as adding the `status-version 2` option in the OpenVPN configuration file.
+This chart also contains some minor tweaks that are used to make it compatible with the exporter, such as adding the `status-version 2` option in the OpenVPN configuration file.
 
 
-After the chart is deployed and the pod is ready, an OpenVPN certificate can be generated using the following commands:
+After the chart is deployed and the pod is ready, an OpenVPN certificate for a new user can be generated using the following commands:
 
 ```bash
 POD_NAME=$(kubectl get pods --namespace <namespace> -l "app=openvpn,release=<your_release>" -o jsonpath='{ .items[0].metadata.name }')
@@ -77,10 +80,14 @@ openvpn_server_client_received_bytes_total{common_name="CC2",connection_time="15
 openvpn_server_client_sent_bytes_total{common_name="CC2",connection_time="1576248156",real_address="10.244.0.0:25878",status_path="/etc/openvpn-exporter/openvpn/openvpn-status.log",username="UNDEF",virtual_address="10.240.0.6"} 19047
 ```
 
-We also need to expose the exporter (no pun intended) through a service, so that the Prometheus operator can access it, by running `kubectl apply -f exporter_service.yaml`.
+At this point, you should have a working OpenVPN installation that runs on Kubernetes. The following steps will allow you to expose metrics through the [Custom Metrics API](https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/#support-for-metrics-apis), that allows us to autoscale against OpenVPN metrics.
 
-`kubectl apply -f servicemonitor.yaml` will now deploy the service monitor that is used by Prometheus to harvest our metrics.
-What the service monitor does is declaratively specify how groups of services should be monitored.
+## Exposing the metrics
+
+We first need to expose the exporter (no pun intended) through a service, so that the Prometheus operator can access it, by running `kubectl apply -f exporter_service.yaml`. This is a very simple service that sits in front of our OpenVPN pods, and that defines a port through which we expose the metrics.
+
+Running `kubectl apply -f servicemonitor.yaml` will now deploy the service monitor that is used by Prometheus to harvest our metrics.
+A service monitor is a Prometheus operator custom resource, and what it does is declaratively specify how groups of services should be monitored.
 
 Once everything is up and running, we are now ready to autoscale against our custom metrics! 
 The following shows a HPA that scales against the number of users currently connected to the VPN:
