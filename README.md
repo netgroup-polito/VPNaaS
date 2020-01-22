@@ -12,7 +12,7 @@ Everything was tested with:
 
 ## Installation
 
-The Helm OpenVPN chart is derived from the [official one](https://github.com/helm/charts/tree/master/stable/openvpn). This fork includes new shared volumes that are used to share OpenVPN metrics, and a sidecar container that exportes this metrics for Prometheus.
+The Helm OpenVPN chart is derived from the [official one](https://github.com/helm/charts/tree/master/stable/openvpn). This fork includes new shared volumes that are used to share OpenVPN metrics, and a sidecar container that exports these metrics for Prometheus. 
 
 To install from the chart directory, run 
 ```helm install --name <release_name> --tiller-namespace <tiller_namespace> .```
@@ -21,7 +21,7 @@ As an example, to install the chart in the `johndoe` namespace, you might do
 ```helm install --name openvpn_v01 --tiller-namespace johndoe .```
 
 
-The metrics exporter is deployed as a sidecar container in the OpenVPN pod, and it exposes metrics on port 9176. This is shown in the following snippet, where the exporter image is used, and the commands for exporting the metrics are run.
+The metrics exporter, which is taken from [this project](https://github.com/kumina/openvpn_exporter), is deployed as a sidecar container in the OpenVPN pod, and it exposes metrics on port 9176. This is shown in the following snippet, where the exporter image is used, and the commands for exporting the metrics are run.
 
 ```YAML
 ...
@@ -54,6 +54,8 @@ kubectl --namespace <namespace>  exec -it "$POD_NAME" -c openvpn /etc/openvpn/se
 kubectl --namespace <namespace>  exec -it "$POD_NAME" -c openvpn cat "/etc/openvpn/certs/pki/$KEY_NAME.ovpn" > "$KEY_NAME.ovpn"
 ```
 
+The certificate can be used to connect to the VPN using any OpenVPN client, such as [Pritunl](https://client.pritunl.com/).
+
 Clients certificates can be revoked in this manner:
 
 ```bash
@@ -84,13 +86,13 @@ At this point, you should have a working OpenVPN installation that runs on Kuber
 
 ## Exposing the metrics
 
-We first need to expose the exporter (no pun intended) through a service, so that the Prometheus operator can access it, by running `kubectl apply -f exporter_service.yaml`. This is a very simple service that sits in front of our OpenVPN pods, and that defines a port through which we expose the metrics.
+We first need to expose the exporter through a service, so that the Prometheus operator can access it, by running `kubectl apply -f exporter_service.yaml`. This is a very simple service that sits in front of our OpenVPN pods, and that defines a port through which we expose the metrics.
 
 Running `kubectl apply -f servicemonitor.yaml` will now deploy the service monitor that is used by Prometheus to harvest our metrics.
-A service monitor is a Prometheus operator custom resource, and what it does is declaratively specify how groups of services should be monitored.
+A service monitor is a Prometheus operator custom resource which declaratevly specifies how groups of services should be monitored.
 
-Once everything is up and running, we are now ready to autoscale against our custom metrics! 
-The following shows a HPA that scales against the number of users currently connected to the VPN:
+Once everything is up and running, we are now ready to autoscale against our custom metrics.
+The following YAML snippet shows a HPA that scales against the number of users currently connected to the VPN:
 
 ```YAML
 kind: HorizontalPodAutoscaler
@@ -115,6 +117,8 @@ spec:
       metricName: openvpn_openvpn_server_connected_clients
       targetAverageValue: 3
 ```
+
+Where `<your_openvpn_deployment>` should be replaced with the name of your OpenVPN deployment.
 
 ## Troubleshooting
 
