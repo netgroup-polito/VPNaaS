@@ -1,3 +1,5 @@
+# A simple service that target the openvpn pod, which is selected by 
+# the service montitor for harvesting the metrics.
 apiVersion: v1
 kind: Service
 metadata:

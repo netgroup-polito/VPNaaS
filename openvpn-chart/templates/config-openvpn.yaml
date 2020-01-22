@@ -1,3 +1,5 @@
+# ConfigMap for the OpenVPN deployment. 
+# It contains the certificate scripts and the openvpn configuration scripts and files.
 apiVersion: v1
 kind: ConfigMap
 metadata:

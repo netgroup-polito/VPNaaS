@@ -1,3 +1,4 @@
+# Main OpenVPN Deployment with a sidecar container for exporting the metrics.
 apiVersion: apps/v1
 kind: Deployment
 metadata:

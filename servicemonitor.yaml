@@ -1,3 +1,4 @@
+# A Prometheus operator service monitor, which describes the set of targets to be monitored by Prometheus.
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:

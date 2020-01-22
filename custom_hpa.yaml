@@ -1,3 +1,4 @@
+# An HPA instance that works on the openvpn deployment and scales against custom OpenVPN metrics.
 kind: HorizontalPodAutoscaler
 apiVersion: autoscaling/v2beta1
 metadata:
@@ -8,7 +9,7 @@ spec:
     # you created above
     apiVersion: apps/v1
     kind: Deployment
-    name: erstwhile-panda-openvpn
+    name: <deployment_name>
   # autoscale between 1 and 10 replicas
   minReplicas: 1
   maxReplicas: 10
