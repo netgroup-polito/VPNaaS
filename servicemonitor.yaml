@@ -1,8 +1,9 @@
+# A Prometheus operator service monitor, which describes the set of targets to be monitored by Prometheus.
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
   name: openvpn
-  namespace: dpallotta-ns1
+  namespace: default
 spec:
   endpoints:
   - interval: 15s
