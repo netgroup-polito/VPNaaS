@@ -29,6 +29,23 @@ spec:
 {{ toYaml .Values.podAnnotations | indent 8 }}
         {{- end }}
     spec:
+{{- if .Values.ipForwardInitContainer }}
+      initContainers:
+        - args:
+            - -c
+            - sysctl -w net.ipv4.ip_forward=1
+          command:
+            - /bin/sh
+          image: busybox:1.29
+          imagePullPolicy: IfNotPresent
+          name: sysctl
+          resources:
+            requests:
+              cpu: 5m
+              memory: 1Mi
+          securityContext:
+            privileged: true
+{{- end }}
       containers:
       - name: exporter
         image: kumina/openvpn-exporter
