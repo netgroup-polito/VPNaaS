@@ -15,8 +15,8 @@ image:
   pullPolicy: IfNotPresent
 service:
   type: LoadBalancer
-  externalPort: 443
-  internalPort: 443
+  externalPort: 9914
+  internalPort: 9914
   # hostPort: 443
   externalIPs: []
   nodePort: 32085
