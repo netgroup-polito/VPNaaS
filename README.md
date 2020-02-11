@@ -4,7 +4,9 @@ Provision an OpenVPN installation on k8s that can autoscale against custom metri
 
 ## Architecture
 
-This project contains a full OpenVPN deployment for k8s, which is coupled with an OpenVPN metrics exporter. The exporters harvests metrics from the OpenVPN instance and exposes them for Prometheus (note that the an instance of the [Prometheus Operator](https://github.com/coreos/prometheus-operator) needs to be running on the cluster).
+This project contains a full OpenVPN deployment for k8s, which is coupled with an OpenVPN metrics exporter and exposed through a LoadBalancer service.
+
+The exporters harvests metrics from the OpenVPN instance and exposes them for Prometheus (note that the an instance of the [Prometheus Operator](https://github.com/coreos/prometheus-operator) needs to be running on the cluster).
 
 These metrics are then fed to the [Prometheus Adapter](https://github.com/helm/charts/tree/master/stable/prometheus-adapter), which implements the k8s [Custom Metrics API](https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/#support-for-metrics-apis). The Adapter is reponsible for exposing the metrics through the k8s API, so that they can be queried by an HPA instance for autoscaling.
 
