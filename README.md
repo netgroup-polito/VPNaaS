@@ -59,7 +59,7 @@ This chart also contains some additional modifications:
 
 
 After the chart is deployed and the pod is ready, an OpenVPN certificate for a new user can be generated. 
-The certificate will allow a user to connect to the VPN using any OpenVPN client available.
+The certificate will allow a user to connect to the VPN using any OpenVPN client available. The certificate contains information such as client configuration options, the IP of the VPN gateway and the client's private key and X.509 certificates.
 
 Certificates can be generated using the following commands:
 
@@ -71,6 +71,8 @@ KEY_NAME=<key_name>
 kubectl --namespace <namespace>  exec -it "$POD_NAME" -c openvpn /etc/openvpn/setup/newClientCert.sh "$KEY_NAME" "$SERVICE_IP"
 kubectl --namespace <namespace>  exec -it "$POD_NAME" -c openvpn cat "/etc/openvpn/certs/pki/$KEY_NAME.ovpn" > "$KEY_NAME.ovpn"
 ```
+
+Here, the `KEY_NAME` option should be a unique identifier of the VPN user, such as an email or university ID numer. This value is going to appear in the *Subject* value of the client certificate, and can be used to revoke it.
 
 
 Clients certificates can be revoked in this manner:
