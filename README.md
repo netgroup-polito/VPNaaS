@@ -8,7 +8,9 @@ This project contains a full OpenVPN deployment for k8s, which is coupled with a
 
 These metrics are then fed to the [Prometheus Adapter](https://github.com/helm/charts/tree/master/stable/prometheus-adapter), which implements the k8s [Custom Metrics API](https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/#support-for-metrics-apis). The Adapter is reponsible for exposing the metrics through the k8s API, so that they can be queried by an HPA instance for autoscaling.
 
+An high-level view of the components and their interactions is showed in the picture.
 
+![](img/scheme.png) 
 
 
 ## Prerequisites
@@ -49,10 +51,15 @@ containers:
 
 Docs for the exporter are available [here](https://github.com/kumina/openvpn_exporter).
 
-This chart also contains some minor tweaks that are used to make it compatible with the exporter, such as adding the `status-version 2` option in the OpenVPN configuration file.
+This chart also contains some additional modifications:
+* `status-version 2` option is added in the OpenVPN configuration file for compatibility with the exporter.
+* An option to set ip forwarding in the container is added. If the option is set, the deployment spawns an initContainer in privileged mode that runs the proper commands on initialization.
+* The default ports are changed, to avoid using port 443 which is often already in use. All of these options can be easily changed from the [values.yaml](https://github.com/netgroup-polito/VPNaaS/blob/master/openvpn-chart/values.yaml) configuration file.
 
 
-After the chart is deployed and the pod is ready, an OpenVPN certificate for a new user can be generated. The certificate will allow a user to connect to the VPN using any OpenVPN client available.
+
+After the chart is deployed and the pod is ready, an OpenVPN certificate for a new user can be generated. 
+The certificate will allow a user to connect to the VPN using any OpenVPN client available.
 
 Certificates can be generated using the following commands:
 
@@ -135,7 +142,9 @@ Where `<your_openvpn_deployment>` should be replaced with the name of your OpenV
 
 ### Internet traffic through VPN
 
-You can avoid routing all traffic through the VPN by setting `redirectGateway: false`.
+You can avoid routing all traffic through the VPN by setting `redirectGateway: false`. The `redirect-gateway`option changes client routing table so that all traffic is directed through the server.
+
+For a detailed discussion on OpenVPN routing, you can look at [this guide](https://community.openvpn.net/openvpn/wiki/BridgingAndRouting?__cf_chl_jschl_tk__=3594c84025c56b4a1b5b5ab4b8a09795f5dffde6-1581421660-0-AWvPPmNOQbCMn6yvKYVynFeagfHjTv3MIRLp1RjRbUpBry5iiU97HnZR4XUZTwIb9wczHJmkjrf-aOHY2xoQDUzYBNgqAiBLSqmZppVcqXBw1zpDYhOxMbk0MHbaqQLJluu0WEE-bEzUMWipoXMEpx5EbHQg_Xm3rbZLhvL3Dy5pF7_LvCPiAHoKdC1g0_T_-YjqVn858go5QQoXJghBLjcSIrNYydpljPUkil5rejI3vt0jp6VdrsXqHLVtAXWADDP8VlnYB0n0VyfdntSp9incx5-440aU7WAjHCOFLmc1eQcx7MiSTDwtr9FcJnxAZw)
 
 ## TODO
 
