@@ -2,6 +2,15 @@
 
 Provision an OpenVPN installation on k8s that can autoscale against custom metrics.
 
+## Architecture
+
+This project contains a full OpenVPN deployment for k8s, which is coupled with an OpenVPN metrics exporter. The exporters harvests metrics from the OpenVPN instance and exposes them for Prometheus (note that the an instance of the [Prometheus Operator](https://github.com/coreos/prometheus-operator) needs to be running on the cluster).
+
+These metrics are then fed to the [Prometheus Adapter](https://github.com/helm/charts/tree/master/stable/prometheus-adapter), which implements the k8s [Custom Metrics API](https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/#support-for-metrics-apis). The Adapter is reponsible for exposing the metrics through the k8s API, so that they can be queried by an HPA instance for autoscaling.
+
+
+
+
 ## Prerequisites
 
 Everything was tested with:
@@ -21,7 +30,7 @@ As an example, to install the chart in the `johndoe` namespace, you might do
 ```helm install --name openvpn_v01 --tiller-namespace johndoe .```
 
 
-The metrics exporter, which is taken from [this project](https://github.com/kumina/openvpn_exporter), is deployed as a sidecar container in the OpenVPN pod, and it exposes metrics on port 9176. This is shown in the following snippet, where the exporter image is used, and the commands for exporting the metrics are run.
+The metrics exporter, which is taken from [this project](https://github.com/kumina/openvpn_exporter), is deployed as a sidecar container in the OpenVPN pod, and it exposes metrics on port 9176. This is shown in the following code snippet, where the exporter image is used, and the commands for exporting the metrics are run.
 
 ```YAML
 ...
@@ -43,7 +52,9 @@ Docs for the exporter are available [here](https://github.com/kumina/openvpn_exp
 This chart also contains some minor tweaks that are used to make it compatible with the exporter, such as adding the `status-version 2` option in the OpenVPN configuration file.
 
 
-After the chart is deployed and the pod is ready, an OpenVPN certificate for a new user can be generated using the following commands:
+After the chart is deployed and the pod is ready, an OpenVPN certificate for a new user can be generated. The certificate will allow a user to connect to the VPN using any OpenVPN client available.
+
+Certificates can be generated using the following commands:
 
 ```bash
 POD_NAME=$(kubectl get pods --namespace <namespace> -l "app=openvpn,release=<your_release>" -o jsonpath='{ .items[0].metadata.name }')
@@ -54,7 +65,6 @@ kubectl --namespace <namespace>  exec -it "$POD_NAME" -c openvpn /etc/openvpn/se
 kubectl --namespace <namespace>  exec -it "$POD_NAME" -c openvpn cat "/etc/openvpn/certs/pki/$KEY_NAME.ovpn" > "$KEY_NAME.ovpn"
 ```
 
-The certificate can be used to connect to the VPN using any OpenVPN client, such as [Pritunl](https://client.pritunl.com/).
 
 Clients certificates can be revoked in this manner:
 
@@ -122,14 +132,10 @@ Where `<your_openvpn_deployment>` should be replaced with the name of your OpenV
 
 ## Troubleshooting
 
-### Load Balancer issues
-
-If the client is not able to connect through the Load Balancer service, it is possible to switch to using the NodePort, by changing the IP and port on the client certificate (this can be done on certificate creation or by manually modifying the certificate).
 
 ### Internet traffic through VPN
 
-IP forwarding needs to be set on the server machines for internet connectivity to work through the VPN gateway.
-You can avoid routing Internet traffic through the VPN by setting `redirectGateway: false` or adding the line `pull-filter ignore "dhcp-option DNS"` to the client certificate.
+You can avoid routing all traffic through the VPN by setting `redirectGateway: false`.
 
 ## TODO
 
