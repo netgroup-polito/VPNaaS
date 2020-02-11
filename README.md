@@ -4,13 +4,13 @@ Provision an OpenVPN installation on k8s that can autoscale against custom metri
 
 ## Architecture
 
-This project contains a full OpenVPN deployment for k8s, which is coupled with an OpenVPN metrics exporter and exposed through a LoadBalancer service which is coupled with an OpenVPN metrics exporter. The deployment
+This project contains a full OpenVPN deployment for k8s, which is coupled with an OpenVPN metrics exporter and exposed through a LoadBalancer service. 
 
 The exporters harvests metrics from the OpenVPN instance and exposes them for Prometheus (note that the an instance of the [Prometheus Operator](https://github.com/coreos/prometheus-operator) needs to be running on the cluster).
 
 These metrics are then fed to the [Prometheus Adapter](https://github.com/helm/charts/tree/master/stable/prometheus-adapter), which implements the k8s [Custom Metrics API](https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/#support-for-metrics-apis). The Adapter is reponsible for exposing the metrics through the k8s API, so that they can be queried by an HPA instance for autoscaling.
 
-An high-level view of the components and their interactions is showed in the picture.
+A high-level view of the components and their interactions is showed in the picture.
 
 ![](img/scheme.png) 
 
@@ -24,6 +24,13 @@ Everything was tested with:
 * [helm](https://helm.sh/docs/intro/install/) v2.16+
 
 ## Installation
+
+We will first focus on provisioning the OpenVPN installation on top of Kubernetes. Once this is done, we will add the components that allow us to expose the metrics through Prometheus. 
+As we've seen, these metrics are then processed by the adapter and exposed through the k8s metrics API. 
+
+After that, we can deploy HPA instances that autoscale against these new metrics.
+
+### OpenVPN
 
 The Helm OpenVPN chart is derived from the [official one](https://github.com/helm/charts/tree/master/stable/openvpn). This fork includes new shared volumes that are used to share OpenVPN metrics, and a sidecar container that exports these metrics for Prometheus. 
 
@@ -105,12 +112,14 @@ openvpn_server_client_sent_bytes_total{common_name="CC2",connection_time="157624
 
 At this point, you should have a working OpenVPN installation that runs on Kubernetes. The following steps will allow you to expose metrics through the [Custom Metrics API](https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/#support-for-metrics-apis), that allows us to autoscale against OpenVPN metrics.
 
-## Exposing the metrics
+### Prometheus Service Monitor
 
 We first need to expose the exporter through a service, so that the Prometheus operator can access it, by running `kubectl apply -f exporter_service.yaml`. This is a very simple service that sits in front of our OpenVPN pods, and that defines a port through which we expose the metrics.
 
 Running `kubectl apply -f servicemonitor.yaml` will now deploy the service monitor that is used by Prometheus to harvest our metrics.
 A service monitor is a Prometheus operator custom resource which declaratevly specifies how groups of services should be monitored.
+
+### HPA
 
 Once everything is up and running, we are now ready to autoscale against our custom metrics.
 The following YAML snippet shows a HPA that scales against the number of users currently connected to the VPN:
