@@ -21,9 +21,16 @@ Everything was tested with:
 
 * [kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl/) version v1.12.0+.
 * Kubernetes v1.6+ cluster.
-* [helm](https://helm.sh/docs/intro/install/) v2.16+
+* [helm](https://helm.sh/docs/intro/install/) v2.16+ and v3.
 
 ## Installation
+
+We will first focus on provisioning the OpenVPN installation on top of Kubernetes. Once this is done, we will add the components that allow us to expose the metrics through Prometheus. 
+As we've seen, these metrics are then processed by the adapter and exposed through the k8s metrics API. 
+
+After that, we can deploy HPA instances that autoscale against these new metrics.
+
+### OpenVPN
 
 The Helm OpenVPN chart is derived from the [official one](https://github.com/helm/charts/tree/master/stable/openvpn). This fork includes new shared volumes that are used to share OpenVPN metrics, and a sidecar container that exports these metrics for Prometheus. 
 
@@ -105,12 +112,14 @@ openvpn_server_client_sent_bytes_total{common_name="CC2",connection_time="157624
 
 At this point, you should have a working OpenVPN installation that runs on Kubernetes. The following steps will allow you to expose metrics through the [Custom Metrics API](https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/#support-for-metrics-apis), that allows us to autoscale against OpenVPN metrics.
 
-## Exposing the metrics
+### Prometheus Service Monitor
 
 We first need to expose the exporter through a service, so that the Prometheus operator can access it, by running `kubectl apply -f exporter_service.yaml`. This is a very simple service that sits in front of our OpenVPN pods, and that defines a port through which we expose the metrics.
 
 Running `kubectl apply -f servicemonitor.yaml` will now deploy the service monitor that is used by Prometheus to harvest our metrics.
 A service monitor is a Prometheus operator custom resource which declaratevly specifies how groups of services should be monitored.
+
+### HPA
 
 Once everything is up and running, we are now ready to autoscale against our custom metrics.
 The following YAML snippet shows a HPA that scales against the number of users currently connected to the VPN:
