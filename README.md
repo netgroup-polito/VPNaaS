@@ -116,7 +116,7 @@ At this point, you should have a working OpenVPN installation that runs on Kuber
 
 We first need to expose the exporter through a service, so that the Prometheus operator can access it, by running `kubectl apply -f exporter_service.yaml`. This is a very simple service that sits in front of our OpenVPN pods, and that defines a port through which we expose the metrics.
 
-Running `kubectl apply -f servicemonitor.yaml` will now deploy the service monitor that is used by Prometheus to harvest our metrics.
+Running `kubectl apply -f servicemonitor.yaml` will now deploy the service monitor that is used by Prometheus to harvest our metrics. Remember to set the appropriate namespace in [servicemonitor.yaml](https://github.com/netgroup-polito/VPNaaS/blob/master/servicemonitor.yaml).
 A service monitor is a Prometheus operator custom resource which declaratevly specifies how groups of services should be monitored.
 
 ### HPA
