@@ -112,6 +112,10 @@ openvpn_server_client_sent_bytes_total{common_name="CC2",connection_time="157624
 
 At this point, you should have a working OpenVPN installation that runs on Kubernetes. The following steps will allow you to expose metrics through the [Custom Metrics API](https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/#support-for-metrics-apis), that allows us to autoscale against OpenVPN metrics.
 
+### Prometheus Adapter
+
+The Prometheus Adapter has to be installed in the cluster in order to implement the Custom Metrics API using Prometheus data. The adapter, along with installation instructions and walkthroughs, can be found [here](https://github.com/DirectXMan12/k8s-prometheus-adapter).
+
 ### Prometheus Service Monitor
 
 We first need to expose the exporter through a service, so that the Prometheus operator can access it, by running `kubectl apply -f exporter_service.yaml`. This is a very simple service that sits in front of our OpenVPN pods, and that defines a port through which we expose the metrics.
