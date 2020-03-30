@@ -1,3 +1,4 @@
+# Main OpenVPN Deployment with a sidecar container for exporting the metrics.
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -28,19 +29,31 @@ spec:
 {{ toYaml .Values.podAnnotations | indent 8 }}
         {{- end }}
     spec:
+{{- if .Values.ipForwardInitContainer }}
+      initContainers:
+        - args:
+            - -c
+            - sysctl -w net.ipv4.ip_forward=1
+          command:
+            - /bin/sh
+          image: busybox:1.29
+          imagePullPolicy: IfNotPresent
+          name: sysctl
+          resources:
+            requests:
+              cpu: 5m
+              memory: 1Mi
+          securityContext:
+            privileged: true
+{{- end }}
       containers:
       - name: exporter
         image: kumina/openvpn-exporter
-        readinessProbe:
-          exec:
-            command:
-            - cat
-            - /tmp/healthy
-          initialDelaySeconds: 5
-          periodSeconds: 5
+        command: ["/bin/openvpn_exporter"]
+        args: ["-openvpn.status_paths", "/etc/openvpn-exporter/openvpn/openvpn-status.log"]
         volumeMounts:
-        - name: openvpn
-          mountPath: /etc/openvpn-exporter/server.status
+        - name: openvpn-status
+          mountPath: /etc/openvpn-exporter/openvpn
       - name: {{ .Chart.Name }}
         image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
         imagePullPolicy: {{ .Values.image.pullPolicy }}
@@ -79,6 +92,9 @@ spec:
           - mountPath: /etc/openvpn/setup
             name: openvpn
             readOnly: false
+          - mountPath: /tmp
+            name: openvpn-status
+            readOnly: false
           - mountPath: /etc/openvpn/certs
             {{- if .Values.persistence.subPath }}
             subPath: {{ .Values.persistence.subPath }}
@@ -86,6 +102,7 @@ spec:
             name: certs
             readOnly: {{ if .Values.openvpn.keystoreSecret }}true{{ else }}false{{ end }}
       volumes:
+      - name: openvpn-status
       - name: openvpn
         configMap:
           name: {{ template "openvpn.fullname" . }}

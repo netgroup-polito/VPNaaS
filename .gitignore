@@ -1,0 +1,5 @@
+.DS_Store
+*.ovpn
+cmd.txt
+servicemonitor_dcota.yaml
+openvpn-chart/.DS_Store/

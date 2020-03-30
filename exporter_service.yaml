@@ -1,0 +1,16 @@
+# A simple service that target the openvpn pod, which is selected by 
+# the service montitor for harvesting the metrics.
+apiVersion: v1
+kind: Service
+metadata:
+  name: exporter-service
+  labels:
+    app: openvpn
+spec:
+  ports:
+  - port: 9176
+    targetPort: 9176
+    protocol: TCP
+    name: metrics
+  selector:
+    app: openvpn

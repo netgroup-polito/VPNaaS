@@ -1,3 +1,4 @@
+# Main service that sits in from of the OpenVPN instance.
 apiVersion: v1
 kind: Service
 metadata:

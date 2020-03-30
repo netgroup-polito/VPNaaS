@@ -1,3 +1,5 @@
+# ConfigMap for the OpenVPN deployment. 
+# It contains the certificate scripts and the openvpn configuration scripts and files.
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -168,6 +170,7 @@ data:
   openvpn.conf: |-
       server {{ .Values.openvpn.OVPN_NETWORK }} {{ .Values.openvpn.OVPN_SUBNET }}
       verb 3
+      status-version 2
 {{ if .Values.openvpn.useCrl }}
       crl-verify /etc/openvpn/certs/crl.pem
 {{ end }}
